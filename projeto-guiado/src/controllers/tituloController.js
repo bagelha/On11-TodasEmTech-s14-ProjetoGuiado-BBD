@@ -31,7 +31,7 @@ const mostraTitulos = async (req, res)=> {
 
 const mostraTitulosMarvel = async (req, res) => {
     const titulos = await Titulo.find().populate('estudio')
-    const titulosFiltrado = titulos.filter(titulo => titulo.estudio.nome == "Marvel")
+    const titulosFiltrado = titulos.filter(titulo => titulo.estudio.nome == "marvel")
 
     return res.status(200).json(titulosFiltrado)
 }
@@ -39,13 +39,79 @@ const mostraTitulosMarvel = async (req, res) => {
 //regra que filtra todos os títulos Ghibli
 const mostraTitulosGhibli = async (req, res) => {
     const titulos = await Titulo.find().populate('estudio')
-    const titulosFiltrado = titulos.filter(titulo => titulo.estudio.nome == "Ghibli")
+    const titulosFiltrado = titulos.filter(titulo => titulo.estudio.nome == "ghibli")
 
     return res.status(200).json(titulosFiltrado)
 }
+
+// mostrar titulo de todos os filmes da Pixar
+const mostraTituloPixar = async(req,res)=>{
+    const titulos = await Titulo.find().populate('estudio')
+    const titulosFiltrado = titulos.filter(titulo => titulo.estudio.nome == "pixar")
+
+    res.status(200).json(titulosFiltrado)
+}
+
+// atualiza titulo a partir do id
+const atualizaTitulo = async(req,res)=>{
+    const encontraTitulo = await Titulo.findById(req.params.id)
+
+    if(encontraTitulo == null){
+        res.status(404).json({"message":"titulo não encontrado"})
+    }
+
+    if(req.body.nome != null){
+        encontraTitulo.nome = req.boy.nome
+    }
+
+    if(req.body.genero != null){
+        encontraTitulo.genero = req.body.genero
+    }
+
+    if(req.body.descricao != null){
+        encontraTitulo.descricao = req.body.descricao
+    }
+
+    if(req.body.estudio != null){
+        encontraTitulo.estudio = req.body.estudio
+    }
+
+    // agora vamos cuidar do banco de dados
+    try{
+        // salvar no banco de dados 
+        const tituloAtualizado = await encontraTitulo.save()
+        // mandar resposta alterada
+    res.status(200).json(tituloAtualizado)
+    }catch(err){
+        res.status(500).json({ message: err.message})
+}
+
+}
+
+// deleta titulo
+const deletaTitulo = async (req, res) => {
+    const encontraTitulo = await Titulo.findById(req.params.id)
+    if(encontraTitulo == null){
+        res.status(404).json({"message": "titulo nao encontrado"})
+    }
+
+    try{
+        await encontraTitulo.remove()
+        res.status(200).json({"message":"titulo removido com sucesso"})
+    }catch(err){
+        res.status(500).json({message:err})
+    }
+}
+
+
+
+
 module.exports = { 
     criaTitulo,
     mostraTitulos,
     mostraTitulosMarvel,
-    mostraTitulosGhibli
+    mostraTitulosGhibli,
+    mostraTituloPixar,
+    atualizaTitulo,
+    deletaTitulo
 }
